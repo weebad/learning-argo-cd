@@ -1,0 +1,27 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Docker Login
+      uses: docker/login-action@v2.1.0
+      with:
+        username: ${{ vars.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build the Docker image
+      run: |
+        source versionFile
+        docker build . --file Dockerfile --build-arg VERSION_ARG=$VERSION --tag mweebad/nginx-with-pod-name:$VERSION
+        docker push mweebad/nginx-with-pod-name:$VERSION
